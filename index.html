@@ -32,7 +32,45 @@
     .quiz-question { font-size: 3em; font-weight: bold; margin-bottom: 20px; color: #d35400; }
     .quiz-answer { font-size: 1.5em; margin: 20px 0; color: var(--secondary); display: none; }
     .action-btn { padding: 10px 20px; font-size: 16px; cursor: pointer; margin: 5px; background: var(--accent); color: white; border: none; border-radius: 5px; }
+    
+    /* 검색창 및 X 버튼 스타일 */
+    .search-wrapper {
+        position: relative;
+        width: 100%;
+        max-width: 300px;
+    }
 
+    .search-input { 
+        padding: 10px 35px 10px 15px; /* X 버튼이 들어갈 오른쪽 공간(35px) 확보 */
+        font-size: 16px; 
+        border: 2px solid #cbd5e1; 
+        border-radius: 8px; 
+        width: 100%; 
+        box-sizing: border-box; 
+        transition: border-color 0.2s;
+    }
+
+    .search-input:focus { 
+        outline: none; 
+        border-color: var(--accent); 
+    }
+
+    /* X 버튼 디자인 */
+    .clear-btn {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        font-size: 20px;
+        color: #94a3b8;
+        cursor: pointer;
+        padding: 0 5px;
+        line-height: 1;
+        display: none; /* 처음엔 숨겨둠 */
+    }
+    .clear-btn:hover { color: var(--primary); }
 
     /* =========================================
        📱 모바일 전용 스타일 (화면 너비 600px 이하일 때만 작동) 
@@ -63,6 +101,9 @@
         .quiz-question { font-size: 2.5em; }
         .quiz-answer { font-size: 1.3em; }
         .action-btn { width: 100%; max-width: 250px; padding: 12px; font-size: 16px; margin: 5px auto; display: block; }
+        
+        .search-wrapper { max-width: 100%; } /* 모바일에서는 가로 100% */
+        .search-input { max-width: 100%; } /* 모바일에서는 검색창 가로 100% */
     }
 </style>
 </head>
@@ -76,6 +117,7 @@
             <div class="btn-group" id="theme-buttons">
                 </div>
         </div>
+
         <div class="selector-group">
             <div class="selector-label">🎯 학습 모드</div>
             <div class="btn-group">
@@ -83,6 +125,15 @@
                 <button id="mode-quiz" onclick="setMode('quiz')">랜덤 테스트</button>
             </div>
         </div>
+        
+        <div class="selector-group" id="search-group">
+            <div class="selector-label">🔍 단어 검색</div>
+            <div class="search-wrapper">
+                <input type="text" id="searchInput" class="search-input" placeholder="한자, 병음, 뜻 입력..." oninput="handleSearch()">
+                <button id="clearBtn" class="clear-btn" onclick="clearSearch()">&times;</button>
+            </div>
+        </div>
+
     </div>
 
     <div id="app"></div>
@@ -131,31 +182,87 @@
         currentMode = modeKey;
         
         // 버튼 UI 업데이트
-        document.querySelectorAll('.selector-group:nth-child(2) button').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.selector-group:nth-child(3) button').forEach(btn => btn.classList.remove('active'));
         document.getElementById(`mode-${modeKey}`).classList.add('active');
 
-        // 화면 다시 그리기
-        renderContent();
-    }
-
-    // 4. 현재 상태(주제+모드)에 따라 화면을 분기하는 함수
-    function renderContent() {
-        if (currentMode === 'list') {
-            renderList();
+        // ✅ 퀴즈 모드일 때는 검색창 숨기기, 리스트 모드일 때는 보이기
+        const searchGroup = document.getElementById('search-group');
+        if (modeKey === 'list') {
+            searchGroup.style.display = ''; // CSS 기본 설정으로 복구 (보이기)
+            renderList(); // 리스트 렌더링 (기존 검색어 유지)
         } else {
+            searchGroup.style.display = 'none'; // 숨기기
             renderQuiz();
         }
     }
 
-    // 5. '모든 단어 보기' 렌더링
+    // ✅ 4. 검색 입력 처리 함수 (새로 추가됨)
+    function handleSearch() {
+        if (currentMode === 'list') {
+            const query = document.getElementById('searchInput').value;
+            const clearBtn = document.getElementById('clearBtn');
+            
+            // 글자가 1개라도 있으면 X 버튼 표시, 없으면 숨김
+            if (query.length > 0) {
+                clearBtn.style.display = 'block';
+            } else {
+                clearBtn.style.display = 'none';
+            }
+            
+            renderList();
+        }
+    }
+
+    // ✅ 4-1. 검색어 초기화 함수 (새로 추가됨)
+    function clearSearch() {
+        const searchInput = document.getElementById('searchInput');
+        searchInput.value = ''; // 입력칸 비우기
+        document.getElementById('clearBtn').style.display = 'none'; // X 버튼 숨기기
+        searchInput.focus(); // 지운 후에도 바로 타자를 칠 수 있게 커서 유지
+        
+        if (currentMode === 'list') {
+            renderList(); // 전체 리스트 다시 렌더링
+        }
+    }
+
+    // 🌟 병음에서 성조 기호를 완전히 제거해주는 마법의 함수
+    function removeTones(str) {
+        // 1. normalize("NFD"): 'xì'를 'xi'와 '`'(성조) 두 개로 분리함
+        // 2. replace: 분리된 기호들(성조)을 빈 문자열로 싹 지워버림
+        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+
+    // 5. '모든 단어 보기' 렌더링 (병음 성조 무시 검색 추가)
     function renderList() {
-        // ★ 핵심: 현재 선택된 주제의 단어 배열만 가져옴
         const targetWords = vocabData[currentTheme].words;
         
+        // 사용자가 입력한 원본 검색어
+        const query = document.getElementById('searchInput').value.toLowerCase().trim();
+        // 사용자가 혹시 성조를 섞어 쳤을 수도 있으니, 검색어에서도 성조를 제거한 버전 준비
+        const normalizedQuery = removeTones(query); 
+
+        // ✅ 검색어에 맞게 단어 필터링
+        const filteredWords = targetWords.filter(word => {
+            const pyLower = word.py.toLowerCase();
+            const pyNoTones = removeTones(pyLower); // 데이터의 병음도 성조 제거 ('xìtǒng' -> 'xitong')
+            
+            return word.zh.includes(query) || 
+                   word.mean.toLowerCase().includes(query) || 
+                   pyLower.includes(query) ||           // 1. 성조까지 완벽히 똑같이 입력한 경우
+                   pyNoTones.includes(normalizedQuery); // 2. 성조 없이 알파벳만(xitong) 입력한 경우
+        });
+
+        const appDiv = document.getElementById('app');
         let html = '';
         let currentCategory = '';
 
-        targetWords.forEach(item => {
+        // 검색 결과가 없을 때의 화면 처리
+        if (filteredWords.length === 0) {
+            appDiv.innerHTML = '<div style="text-align:center; padding: 50px; color: var(--pinyin); font-size: 1.2em;">검색 결과가 없습니다. 😢</div>';
+            return;
+        }
+
+        filteredWords.forEach(item => {
             if (item.category !== currentCategory) {
                 if (currentCategory !== '') html += '</div>'; 
                 html += `<h2 style="color: var(--accent); margin-top: 30px; border-left: 5px solid var(--accent); padding-left: 10px;">${item.category}</h2><div class="grid-container">`;
@@ -177,7 +284,16 @@
         appDiv.innerHTML = html;
     }
 
-    // 6. '랜덤 테스트' 렌더링
+    // 6. 현재 상태(주제+모드)에 따라 화면을 분기하는 함수
+    function renderContent() {
+        if (currentMode === 'list') {
+            renderList();
+        } else {
+            renderQuiz();
+        }
+    }
+
+    // 7. '랜덤 테스트' 렌더링
     function renderQuiz() {
         // ★ 핵심: 퀴즈도 현재 선택된 주제 안에서만 문제를 출제함
         const targetWords = vocabData[currentTheme].words;
