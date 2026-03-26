@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>중국어 단어 학습장</title>
+<style>
+    :root { --primary: #2c3e50; --secondary: #34495e; --pinyin: #7f8c8d; --border: #e2e8f0; --bg: #f8fafc; --accent: #0056b3; }
+    body { font-family: 'Microsoft YaHei', 'Malgun Gothic', sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; }
+    
+    /* 컨트롤 패널 (주제 및 모드 선택 영역) */
+    .control-panel { background: #f1f5f9; padding: 15px 20px; border-radius: 8px; margin-bottom: 30px; }
+    .selector-group { display: flex; align-items: center; margin-bottom: 10px; gap: 15px; }
+    .selector-label { font-weight: bold; color: var(--secondary); min-width: 80px; }
+    
+    .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn-group button { padding: 8px 16px; font-size: 15px; cursor: pointer; border: 1px solid #cbd5e1; background: white; border-radius: 5px; color: var(--secondary); transition: all 0.2s; }
+    .btn-group button.active { background: var(--accent); color: white; border-color: var(--accent); font-weight: bold; }
+
+    /* 리스트 및 카드 스타일 (기존과 동일) */
+    .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; margin-bottom: 30px;}
+    .card { display: flex; align-items: center; border: 1px solid var(--border); border-radius: 8px; padding: 12px; background: var(--bg); }
+    .word-group { display: flex; flex-direction: column; flex: 1; padding-left: 10px; border-right: 1px dashed #cbd5e1; margin-right: 15px; }
+    .zh { font-size: 1.4em; font-weight: bold; color: var(--primary); }
+    .py { font-size: 0.85em; color: var(--pinyin); }
+    .mean { font-weight: 600; width: 120px; }
+
+    /* 퀴즈 전용 스타일 (기존과 동일) */
+    .quiz-container { text-align: center; padding: 50px; border: 2px dashed var(--accent); border-radius: 10px; background: #fdfdfd; margin-top: 20px; }
+    .quiz-question { font-size: 2.5em; font-weight: bold; margin-bottom: 20px; color: #d35400; }
+    .quiz-answer { font-size: 1.5em; margin: 20px 0; color: var(--secondary); display: none; }
+    .action-btn { padding: 10px 20px; font-size: 16px; cursor: pointer; margin: 5px; background: var(--accent); color: white; border: none; border-radius: 5px; }
+</style>
+</head>
+<body>
+
+    <h1 id="main-title">중국어 단어 학습장</h1>
+
+    <div class="control-panel">
+        <div class="selector-group">
+            <div class="selector-label">📂 주제 선택</div>
+            <div class="btn-group" id="theme-buttons">
+                </div>
+        </div>
+        <div class="selector-group">
+            <div class="selector-label">🎯 학습 모드</div>
+            <div class="btn-group">
+                <button id="mode-list" class="active" onclick="setMode('list')">모든 단어 보기</button>
+                <button id="mode-quiz" onclick="setMode('quiz')">랜덤 테스트</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app"></div>
+
+<script src="words.js"></script> 
+
+<script>
+    // 상태 관리 변수 (초기값 설정)
+    let currentTheme = 'windows'; // 기본 주제
+    let currentMode = 'list';     // 기본 모드
+
+    const appDiv = document.getElementById('app');
+
+    // 1. 초기화 함수: 주제 버튼들을 데이터 기반으로 자동 생성
+    function init() {
+        const themeContainer = document.getElementById('theme-buttons');
+        let html = '';
+        
+        // vocabData 객체의 키값들(windows, hsk2)을 순회하며 버튼 생성
+        for (const key in vocabData) {
+            html += `<button id="theme-${key}" onclick="setTheme('${key}')">${vocabData[key].title}</button>`;
+        }
+        themeContainer.innerHTML = html;
+        
+        // 초기 상태 적용
+        setTheme(currentTheme);
+    }
+
+    // 2. 주제 변경 함수
+    function setTheme(themeKey) {
+        currentTheme = themeKey;
+        
+        // 버튼 UI 업데이트
+        document.querySelectorAll('#theme-buttons button').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`theme-${themeKey}`).classList.add('active');
+        
+        // 메인 타이틀 업데이트
+        // document.getElementById('main-title').innerText = vocabData[themeKey].title;
+
+        // 화면 다시 그리기
+        renderContent();
+    }
+
+    // 3. 모드 변경 함수
+    function setMode(modeKey) {
+        currentMode = modeKey;
+        
+        // 버튼 UI 업데이트
+        document.querySelectorAll('.selector-group:nth-child(2) button').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`mode-${modeKey}`).classList.add('active');
+
+        // 화면 다시 그리기
+        renderContent();
+    }
+
+    // 4. 현재 상태(주제+모드)에 따라 화면을 분기하는 함수
+    function renderContent() {
+        if (currentMode === 'list') {
+            renderList();
+        } else {
+            renderQuiz();
+        }
+    }
+
+    // 5. '모든 단어 보기' 렌더링
+    function renderList() {
+        // ★ 핵심: 현재 선택된 주제의 단어 배열만 가져옴
+        const targetWords = vocabData[currentTheme].words;
+        
+        let html = '';
+        let currentCategory = '';
+
+        targetWords.forEach(item => {
+            if (item.category !== currentCategory) {
+                if (currentCategory !== '') html += '</div>'; 
+                html += `<h2 style="color: var(--accent); margin-top: 30px; border-left: 5px solid var(--accent); padding-left: 10px;">${item.category}</h2><div class="grid-container">`;
+                currentCategory = item.category;
+            }
+            
+            html += `
+                <div class="card">
+                    <div style="color: #94a3b8; font-weight: bold; min-width: 28px;">${item.id}</div>
+                    <div class="word-group">
+                        <span class="zh">${item.zh}</span>
+                        <span class="py">${item.py}</span>
+                    </div>
+                    <div class="mean">${item.mean}</div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        appDiv.innerHTML = html;
+    }
+
+    // 6. '랜덤 테스트' 렌더링
+    function renderQuiz() {
+        // ★ 핵심: 퀴즈도 현재 선택된 주제 안에서만 문제를 출제함
+        const targetWords = vocabData[currentTheme].words;
+        
+        const randomWord = targetWords[Math.floor(Math.random() * targetWords.length)];
+        const questionType = Math.floor(Math.random() * 3);
+        
+        let questionText = '';
+        let answerText = '';
+
+        if (questionType === 0) {
+            questionText = `Q. ${randomWord.zh}`;
+            answerText = `병음: ${randomWord.py} <br> 뜻: ${randomWord.mean}`;
+        } else {
+            questionText = `Q. ${randomWord.mean}`;
+            answerText = `한자: <span class="zh">${randomWord.zh}</span> <br> 병음: ${randomWord.py}`;
+        }
+
+        appDiv.innerHTML = `
+            <div class="quiz-container">
+                <div class="quiz-question">${questionText}</div>
+                <div id="quiz-answer" class="quiz-answer">${answerText}</div>
+                <div>
+                    <button class="action-btn" onclick="document.getElementById('quiz-answer').style.display='block'">정답 보기</button>
+                    <button class="action-btn" onclick="renderQuiz()">다음 문제</button>
+                </div>
+            </div>
+        `;
+    }
+
+    // 스크립트가 로드되면 초기화 실행
+    init();
+</script>
+</body>
+</html>
