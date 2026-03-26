@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
 <title>중국어 단어 학습장</title>
 <style>
     :root { --primary: #2c3e50; --secondary: #34495e; --pinyin: #7f8c8d; --border: #e2e8f0; --bg: #f8fafc; --accent: #0056b3; }
@@ -21,7 +25,6 @@
 
     /* 리스트 및 카드 기본 스타일 (PC 기준) */
     .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; margin-bottom: 30px;}
-    .card { display: flex; align-items: center; border: 1px solid var(--border); border-radius: 8px; padding: 12px; background: var(--bg); }
     .word-group { display: flex; flex-direction: column; flex: 1; padding-left: 10px; border-right: 1px dashed #cbd5e1; margin-right: 15px; }
     .zh { font-size: 1.6em; font-weight: bold; color: var(--primary); margin-bottom: 2px; }
     .py { font-size: 0.9em; color: var(--pinyin); }
@@ -72,6 +75,103 @@
     }
     .clear-btn:hover { color: var(--primary); }
 
+    .stroke-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent; 
+        border: none !important; 
+        outline: none; 
+        cursor: pointer; 
+        transition: transform 0.2s; 
+        padding: 0; 
+        margin: 0; 
+        line-height: 1; 
+        -webkit-tap-highlight-color: transparent;
+    }
+    .stroke-btn:hover { transform: scale(1.1); }
+    
+    /* ✅ 획순 아이콘 전용 스타일 (Material Icons 사용) */
+    .stroke-icon {
+        color: #94a3b8; /* ✅ 차분한 회색으로 설정 (stars-btn 비활성화 색상과 통일) */
+        font-size: 22px;
+        font-weight: normal; /* 아이콘 굵기를 노멀로 */
+    }
+
+    /* ⭐ 오답 노트(즐겨찾기) 버튼 스타일 */
+    .star-btn {        
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent; 
+        border: none !important; 
+        outline: none;
+        cursor: pointer; 
+        color: #cbd5e1; /* 비활성화 시 연한 회색 */
+        transition: transform 0.2s, color 0.2s; 
+        padding: 0; 
+        margin: 0; 
+        line-height: 1;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .star-btn:hover { transform: scale(1.1); }
+
+    .star-icon {
+        font-size: 22px; /* 획순 아이콘과 밸런스를 맞춘 크기 */
+    }
+    /* 활성화 시 노란색(금색)으로 변경 및 살짝 커지는 효과 */
+    .star-btn.active { color: #fbbf24; transform: scale(1.1); }
+
+    .card { 
+        position: relative; /* ✅ 핵심: 둥둥 뜰 버튼들의 '기준점'이 됩니다 */
+        display: flex; 
+        align-items: center; 
+        border: 1px solid var(--border); 
+        border-radius: 8px; 
+        padding: 15px 12px; 
+        background: var(--bg); 
+    }
+
+    .card-actions { 
+        display: flex; 
+        align-items: center; 
+        gap: 8px; 
+    }
+
+    .card .card-actions { 
+        position: absolute; /* 공간을 차지하지 않고 공중에 띄움 (글자 밀림 완벽 해결!) */
+        top: 2px;           /* 카드 위쪽 테두리에서 8px 떨어짐 */
+        right: 2px;        /* 카드 오른쪽 테두리에서 10px 떨어짐 */
+        opacity: 0.3;       /* ✅ 평소에는 30% 투명도로 희미하게 (단어 집중) */
+        transition: opacity 0.2s ease-in-out; /* 부드럽게 나타나는 효과 */
+    }
+    
+    .card:hover .card-actions {
+        opacity: 1;
+    }
+
+    /* ⭐ 오답 노트(즐겨찾기) 버튼 스타일 수정 (마진 제거 및 크기 최적화) */
+    .star-btn { 
+        background: none; 
+        border: none; 
+        font-size: 1.6em; /* ✅ 세로 배치에 맞춰 살짝 크기 조정 */
+        cursor: pointer; 
+        color: #cbd5e1; 
+        transition: transform 0.2s, color 0.2s; 
+        padding: 0; /* 여백 제거 */
+        margin: 0; /* 기존 마진 제거 */
+        line-height: 1;
+    }
+    .star-btn.active { color: #fbbf24; transform: scale(1.1); }
+
+    /* 팝업창(모달) 배경 및 창 스타일 */
+    .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); justify-content: center; align-items: center; }
+    .modal-content { background-color: #fff; padding: 25px; border-radius: 12px; text-align: center; max-width: 90%; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .stroke-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; min-height: 100px; margin-bottom: 20px; }
+    /* 한자가 그려질 개별 박스 */
+    .char-box { border: 1px dashed #cbd5e1; border-radius: 8px; background: #f8fafc; width: 100px; height: 100px; }
+    .close-modal-btn { padding: 10px 25px; background: var(--secondary); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+
     /* =========================================
        📱 모바일 전용 스타일 (화면 너비 600px 이하일 때만 작동) 
        ========================================= */
@@ -89,12 +189,20 @@
 
         /* 단어장 1열(Column)로 꽉 차게 변경 */
         .grid-container { grid-template-columns: 1fr; gap: 10px; }
-        .card { padding: 15px 10px; }
-        
+        .card { padding: 10px; } /* 모바일 여백 줄임 */        
+
         /* 모바일에 맞춘 폰트 사이즈 및 간격 최적화 */
         .zh { font-size: 2em; line-height: 1.2; } 
         .py { font-size: 1em; }
-        .mean { font-size: 1.1em; width: auto; min-width: 90px; text-align: right; }
+        
+        /* 뜻 영역 스타일 조정 (세로 버튼군 옆에 깔끔하게 붙게 함) */
+        .mean { 
+            font-size: 1em; 
+            width: auto; 
+            min-width: 80px; 
+            text-align: right; 
+            padding-right: 5px; /* 버튼 구분선과의 간격 */
+        }
 
         /* 퀴즈 화면 모바일 최적화 */
         .quiz-container { padding: 30px 15px; }
@@ -120,9 +228,10 @@
 
         <div class="selector-group">
             <div class="selector-label">🎯 학습 모드</div>
-            <div class="btn-group">
+            <div class="btn-group" id="mode-buttons">
                 <button id="mode-list" class="active" onclick="setMode('list')">모든 단어 보기</button>
                 <button id="mode-quiz" onclick="setMode('quiz')">랜덤 테스트</button>
+                <button id="mode-favorites" onclick="setMode('favorites')">오답 노트</button>
             </div>
         </div>
         
@@ -137,6 +246,13 @@
     </div>
 
     <div id="app"></div>
+    <div id="strokeModal" class="modal-overlay" onclick="closeStrokeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()"> <h3 style="margin-top:0; color:var(--primary);">획순 보기</h3>
+            <div id="strokeContainer" class="stroke-container"></div>
+            <button class="close-modal-btn" onclick="closeStrokeModal(event, true)">닫기</button>
+            <p style="font-size: 0.8em; color: #94a3b8; margin-top: 15px; margin-bottom: 0;">한자를 터치하면 다시 그려집니다.</p>
+        </div>
+    </div>
 
 <script src="words.js"></script> 
 
@@ -177,21 +293,93 @@
         renderContent();
     }
 
-    // 3. 모드 변경 함수
+    // ==========================================
+    // 💾 오답 노트(로컬 스토리지) 관리 함수
+    // ==========================================
+    function getFavorites() {
+        // 현재 주제(windows, hsk2 등)별로 오답 노트를 따로 저장합니다.
+        const favs = localStorage.getItem('fav_' + currentTheme);
+        return favs ? JSON.parse(favs) : [];
+    }
+
+    function toggleFavorite(id) {
+        let favs = getFavorites();
+        if (favs.includes(id)) {
+            favs = favs.filter(favId => favId !== id); // 이미 있으면 제거
+        } else {
+            favs.push(id); // 없으면 추가
+        }
+        localStorage.setItem('fav_' + currentTheme, JSON.stringify(favs));
+        
+        // 클릭 후 화면 즉시 업데이트
+        if (currentMode === 'list' || currentMode === 'favorites') {
+            renderList();
+        } else if (currentMode === 'quiz') {
+            const starBtn = document.getElementById('quiz-star-btn');
+            if(starBtn) {
+                starBtn.className = favs.includes(id) ? 'star-btn active' : 'star-btn';
+                starBtn.innerHTML = `<span class="material-icons star-icon">${favs.includes(id) ? 'star' : 'star_border'}</span>`;
+            }
+        }
+    }
+
+    // ==========================================
+    // ✍️ 획순 애니메이션 (Hanzi Writer) 로직
+    // ==========================================
+    function showStrokeOrder(zh_text) {
+        const modal = document.getElementById('strokeModal');
+        const container = document.getElementById('strokeContainer');
+        container.innerHTML = ''; // 이전 글자들 초기화
+        modal.style.display = 'flex'; // 팝업 열기
+
+        // 단어의 글자 수만큼 반복해서 그리기 (예: 操作系统 -> 4번 반복)
+        Array.from(zh_text).forEach(char => {
+            const charDiv = document.createElement('div');
+            charDiv.className = 'char-box';
+            container.appendChild(charDiv);
+
+            // HanziWriter 설정 및 생성
+            const writer = HanziWriter.create(charDiv, char, {
+                width: 100, height: 100, padding: 8,
+                strokeAnimationSpeed: 1.5, // 긋는 속도
+                delayBetweenStrokes: 100,  // 획 사이 딜레이
+                showOutline: true          // 배경에 연하게 글자 윤곽선 표시
+            });
+            
+            // 박스를 터치/클릭하면 애니메이션 다시 실행
+            charDiv.onclick = () => writer.animateCharacter();
+            
+            // 팝업이 열리면 자동으로 애니메이션 시작
+            writer.animateCharacter();
+        });
+    }
+
+    // 팝업 닫기 로직 (바깥 배경을 누르거나 닫기 버튼을 누를 때)
+    function closeStrokeModal(event, forceClose = false) {
+        if (forceClose || event.target.id === 'strokeModal') {
+            document.getElementById('strokeModal').style.display = 'none';
+            document.getElementById('strokeContainer').innerHTML = ''; // 메모리 정리
+        }
+    }
+
+    // 3. 모드 변경 함수 (오답 노트 모드 추가)
     function setMode(modeKey) {
         currentMode = modeKey;
         
-        // 버튼 UI 업데이트
-        document.querySelectorAll('.selector-group:nth-child(3) button').forEach(btn => btn.classList.remove('active'));
+        // 버튼 상태 업데이트
+        document.querySelectorAll('#mode-buttons button').forEach(btn => btn.classList.remove('active'));
         document.getElementById(`mode-${modeKey}`).classList.add('active');
 
-        // ✅ 퀴즈 모드일 때는 검색창 숨기기, 리스트 모드일 때는 보이기
         const searchGroup = document.getElementById('search-group');
-        if (modeKey === 'list') {
-            searchGroup.style.display = ''; // CSS 기본 설정으로 복구 (보이기)
-            renderList(); // 리스트 렌더링 (기존 검색어 유지)
-        } else {
-            searchGroup.style.display = 'none'; // 숨기기
+        
+        // 리스트 모드이거나 오답 노트 모드일 때 (검색창 활성화)
+        if (modeKey === 'list' || modeKey === 'favorites') {
+            if (searchGroup) searchGroup.style.display = ''; 
+            renderList(); // renderList에서 favorites 필터링도 같이 처리합니다.
+        } 
+        // 퀴즈 모드일 때
+        else {
+            if (searchGroup) searchGroup.style.display = 'none';
             renderQuiz();
         }
     }
@@ -231,34 +419,38 @@
         // 2. replace: 분리된 기호들(성조)을 빈 문자열로 싹 지워버림
         return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     }
-
-    // 5. '모든 단어 보기' 렌더링 (병음 성조 무시 검색 추가)
+// 5. 단어 목록 렌더링 (오답 노트 필터링 및 별표 버튼 추가)
     function renderList() {
         const targetWords = vocabData[currentTheme].words;
+        const favs = getFavorites(); // 현재 주제의 오답 노트 목록 불러오기
         
-        // 사용자가 입력한 원본 검색어
-        const query = document.getElementById('searchInput').value.toLowerCase().trim();
-        // 사용자가 혹시 성조를 섞어 쳤을 수도 있으니, 검색어에서도 성조를 제거한 버전 준비
+        const searchInput = document.getElementById('searchInput');
+        const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
         const normalizedQuery = removeTones(query); 
 
-        // ✅ 검색어에 맞게 단어 필터링
+        // 단어 필터링 (오답 노트 + 검색어)
         const filteredWords = targetWords.filter(word => {
+            // ✅ 만약 '오답 노트' 모드인데, 오답 목록에 없는 단어라면 제외!
+            if (currentMode === 'favorites' && !favs.includes(word.id)) {
+                return false;
+            }
+
             const pyLower = word.py.toLowerCase();
-            const pyNoTones = removeTones(pyLower); // 데이터의 병음도 성조 제거 ('xìtǒng' -> 'xitong')
+            const pyNoTones = removeTones(pyLower);
             
             return word.zh.includes(query) || 
                    word.mean.toLowerCase().includes(query) || 
-                   pyLower.includes(query) ||           // 1. 성조까지 완벽히 똑같이 입력한 경우
-                   pyNoTones.includes(normalizedQuery); // 2. 성조 없이 알파벳만(xitong) 입력한 경우
+                   pyLower.includes(query) ||
+                   pyNoTones.includes(normalizedQuery);
         });
 
         const appDiv = document.getElementById('app');
         let html = '';
         let currentCategory = '';
 
-        // 검색 결과가 없을 때의 화면 처리
         if (filteredWords.length === 0) {
-            appDiv.innerHTML = '<div style="text-align:center; padding: 50px; color: var(--pinyin); font-size: 1.2em;">검색 결과가 없습니다. 😢</div>';
+            const msg = currentMode === 'favorites' ? '오답 노트가 비어있습니다. 퀴즈나 목록에서 ⭐를 눌러 추가해보세요!' : '검색 결과가 없습니다. 😢';
+            appDiv.innerHTML = `<div style="text-align:center; padding: 50px; color: var(--pinyin); font-size: 1.2em; line-height:1.5;">${msg}</div>`;
             return;
         }
 
@@ -269,6 +461,8 @@
                 currentCategory = item.category;
             }
             
+            const isFav = favs.includes(item.id);
+            
             html += `
                 <div class="card">
                     <div style="color: #94a3b8; font-weight: bold; min-width: 28px;">${item.id}</div>
@@ -277,6 +471,14 @@
                         <span class="py">${item.py}</span>
                     </div>
                     <div class="mean">${item.mean}</div>
+                    <div class="card-actions">
+                        <button class="stroke-btn" onclick="showStrokeOrder('${item.zh}')" title="획순 보기">
+                            <span class="material-icons stroke-icon">draw</span>
+                        </button>
+                        <button class="star-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(${item.id})">
+                            <span class="material-icons star-icon">${isFav ? 'star' : 'star_border'}</span>
+                        </button>
+                    </div>
                 </div>
             `;
         });
@@ -284,22 +486,15 @@
         appDiv.innerHTML = html;
     }
 
-    // 6. 현재 상태(주제+모드)에 따라 화면을 분기하는 함수
-    function renderContent() {
-        if (currentMode === 'list') {
-            renderList();
-        } else {
-            renderQuiz();
-        }
-    }
-
-    // 7. '랜덤 테스트' 렌더링
+    // 6. 퀴즈 렌더링 (정답 확인 시 오답 노트에 바로 추가하는 기능 포함)
     function renderQuiz() {
-        // ★ 핵심: 퀴즈도 현재 선택된 주제 안에서만 문제를 출제함
         const targetWords = vocabData[currentTheme].words;
         
+        // ✅ [선택 사항] 오답 노트 모드에서 퀴즈를 누르면 오답 노트 안에서만 퀴즈를 낼 수도 있습니다.
+        // 지금은 무조건 전체 단어에서 퀴즈가 나오도록 설정되어 있습니다.
+        
         const randomWord = targetWords[Math.floor(Math.random() * targetWords.length)];
-        const questionType = Math.floor(Math.random() * 3);
+        const questionType = Math.floor(Math.random() * 2);
         
         let questionText = '';
         let answerText = '';
@@ -312,16 +507,41 @@
             answerText = `한자: <span class="zh">${randomWord.zh}</span> <br> 병음: ${randomWord.py}`;
         }
 
+        const favs = getFavorites();
+        const isFav = favs.includes(randomWord.id);
+
         appDiv.innerHTML = `
             <div class="quiz-container">
                 <div class="quiz-question">${questionText}</div>
-                <div id="quiz-answer" class="quiz-answer">${answerText}</div>
+                <div id="quiz-answer" class="quiz-answer">
+                    ${answerText}
+                    <div style="margin-top: 15px; border-top: 1px dashed #cbd5e1; padding-top: 15px;">
+                        <div class="card-actions" style="justify-content: center;">
+                            <span style="font-size: 0.8em; color: #7f8c8d; margin-right: 10px;">획순 확인 / 오답 노트 추가 👉</span>
+                            <button class="stroke-btn" onclick="showStrokeOrder('${randomWord.zh}')" title="획순 보기">
+                                <span class="material-icons stroke-icon">draw</span>
+                            </button>
+                            <button id="quiz-star-btn" class="star-btn ${isFav ? 'active' : ''}" style="margin-left: 5px;" onclick="toggleFavorite(${randomWord.id})">
+                                <span class="material-icons star-icon">${isFav ? 'star' : 'star_border'}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 <div>
                     <button class="action-btn" onclick="document.getElementById('quiz-answer').style.display='block'">정답 보기</button>
                     <button class="action-btn" onclick="renderQuiz()">다음 문제</button>
                 </div>
             </div>
         `;
+    }
+
+    // 7. 현재 상태(주제+모드)에 따라 화면을 분기하는 함수
+    function renderContent() {
+        if (currentMode === 'list') {
+            renderList();
+        } else {
+            renderQuiz();
+        }
     }
 
     // 스크립트가 로드되면 초기화 실행
