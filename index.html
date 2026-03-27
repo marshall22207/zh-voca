@@ -375,29 +375,37 @@
         }
     }
 
-    // 3. 모드 변경 함수 (오답 노트 모드 추가)
+    // 3. 모드 변경 함수 (수정: 랜덤 단어 보기에서 검색창 숨김)
     function setMode(modeKey) {
         currentMode = modeKey;
         
-        // 버튼 상태 업데이트
+        // 버튼 UI 업데이트
         document.querySelectorAll('#mode-buttons button').forEach(btn => btn.classList.remove('active'));
         document.getElementById(`mode-${modeKey}`).classList.add('active');
 
         const searchGroup = document.getElementById('search-group');
+        const searchInput = document.getElementById('searchInput');
+        const clearBtn = document.getElementById('clearBtn');
         
-        // 리스트, 랜덤 리스트, 오답 노트일 때 (검색창 활성화)
-        if (modeKey === 'list' || modeKey === 'randomList' || modeKey === 'favorites') {
+        // ✅ '모든 단어 보기', '오답 노트'일 때만 검색창 보이기
+        if (modeKey === 'list' || modeKey === 'favorites') {
             if (searchGroup) searchGroup.style.display = ''; 
-            
-            // ✅ '랜덤 단어 보기' 탭을 방금 막 눌렀을 때만 배열을 새로 섞음
+        } 
+        // ✅ '랜덤 단어 보기', '랜덤 테스트'일 때는 검색창 숨기기 및 초기화
+        else {
+            if (searchGroup) searchGroup.style.display = 'none';
+            if (searchInput) searchInput.value = ''; // 숨겨진 상태에서 검색어가 필터링을 방해하지 않도록 비움
+            if (clearBtn) clearBtn.style.display = 'none';
+        }
+
+        // 화면 렌더링 분기
+        if (modeKey === 'list' || modeKey === 'randomList' || modeKey === 'favorites') {
+            // '랜덤 단어 보기' 탭을 방금 막 눌렀을 때만 배열을 새로 섞음
             if (modeKey === 'randomList') {
                 currentShuffledWords = shuffleArray(vocabData[currentTheme].words);
             }
             renderList();
-        } 
-        // 퀴즈 모드일 때
-        else {
-            if (searchGroup) searchGroup.style.display = 'none';
+        } else {
             renderQuiz();
         }
     }
