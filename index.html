@@ -198,10 +198,16 @@
         /* 뜻 영역 스타일 조정 (세로 버튼군 옆에 깔끔하게 붙게 함) */
         .mean { 
             font-size: 1em; 
-            width: auto; 
-            min-width: 80px; 
-            text-align: right; 
-            padding-right: 5px; /* 버튼 구분선과의 간격 */
+            width: auto;
+            flex: 1;
+            text-align: left; /* 오른쪽 정렬 해제, 왼쪽으로 정렬! */
+            padding-left: 10px; /* 점선과 글자 사이 간격 */
+            margin-left: 10px; /* 단어와 점선 사이 간격 */
+        }
+
+        /* ✅ 단어 길이가 달라도 회색 점선이 일직선으로 예쁘게 맞도록 최소 너비 고정 */
+        .word-group {
+            min-width: 90px; 
         }
 
         /* 퀴즈 화면 모바일 최적화 */
