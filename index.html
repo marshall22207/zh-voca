@@ -25,105 +25,9 @@
 
     /* 리스트 및 카드 기본 스타일 (PC 기준) */
     .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; margin-bottom: 30px;}
-    .word-group { display: flex; flex-direction: column; flex: 1; padding-left: 10px; border-right: 1px dashed #cbd5e1; margin-right: 15px; }
-    .zh { font-size: 1.6em; font-weight: bold; color: var(--primary); margin-bottom: 2px; }
-    .py { font-size: 0.9em; color: var(--pinyin); }
-    .mean { font-size: 1em; font-weight: 600; width: 120px; }
-
-    /* 퀴즈 전용 스타일 (PC 기준) */
-    .quiz-container { text-align: center; padding: 50px; border: 2px dashed var(--accent); border-radius: 10px; background: #fdfdfd; margin-top: 20px; }
-    .quiz-question { font-size: 3em; font-weight: bold; margin-bottom: 20px; color: #d35400; }
-    .quiz-answer { font-size: 1.5em; margin: 20px 0; color: var(--secondary); display: none; }
-    .action-btn { padding: 10px 20px; font-size: 16px; cursor: pointer; margin: 5px; background: var(--accent); color: white; border: none; border-radius: 5px; }
     
-    /* 검색창 및 X 버튼 스타일 */
-    .search-wrapper {
-        position: relative;
-        width: 100%;
-        max-width: 300px;
-    }
-
-    .search-input { 
-        padding: 10px 35px 10px 15px; /* X 버튼이 들어갈 오른쪽 공간(35px) 확보 */
-        font-size: 16px; 
-        border: 2px solid #cbd5e1; 
-        border-radius: 8px; 
-        width: 100%; 
-        box-sizing: border-box; 
-        transition: border-color 0.2s;
-    }
-
-    .search-input:focus { 
-        outline: none; 
-        border-color: var(--accent); 
-    }
-
-    /* X 버튼 디자인 */
-    .clear-btn {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        font-size: 20px;
-        color: #94a3b8;
-        cursor: pointer;
-        padding: 0 5px;
-        line-height: 1;
-        display: none; /* 처음엔 숨겨둠 */
-    }
-    .clear-btn:hover { color: var(--primary); }
-
-    .stroke-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: transparent; 
-        border: none !important; 
-        outline: none; 
-        cursor: pointer; 
-        transition: transform 0.2s; 
-        padding: 0; 
-        margin: 0; 
-        line-height: 1; 
-        -webkit-tap-highlight-color: transparent;
-    }
-    .stroke-btn:hover { transform: scale(1.1); }
-    
-    /* ✅ 획순 아이콘 전용 스타일 (Material Icons 사용) */
-    .stroke-icon {
-        color: #94a3b8; /* ✅ 차분한 회색으로 설정 (stars-btn 비활성화 색상과 통일) */
-        font-size: 22px;
-        font-weight: normal; /* 아이콘 굵기를 노멀로 */
-    }
-
-    /* ⭐ 오답 노트(즐겨찾기) 버튼 스타일 */
-    .star-btn {        
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: transparent; 
-        border: none !important; 
-        outline: none;
-        cursor: pointer; 
-        color: #cbd5e1; /* 비활성화 시 연한 회색 */
-        transition: transform 0.2s, color 0.2s; 
-        padding: 0; 
-        margin: 0; 
-        line-height: 1;
-        -webkit-tap-highlight-color: transparent;
-    }
-    .star-btn:hover { transform: scale(1.1); }
-
-    .star-icon {
-        font-size: 22px; /* 획순 아이콘과 밸런스를 맞춘 크기 */
-    }
-    /* 활성화 시 노란색(금색)으로 변경 및 살짝 커지는 효과 */
-    .star-btn.active { color: #fbbf24; transform: scale(1.1); }
-
     .card { 
-        position: relative; /* ✅ 핵심: 둥둥 뜰 버튼들의 '기준점'이 됩니다 */
+        position: relative; 
         display: flex; 
         align-items: center; 
         border: 1px solid var(--border); 
@@ -132,92 +36,97 @@
         background: var(--bg); 
     }
 
-    .card-actions { 
+    /* ✅ 단어 영역이 카드의 45%를 넘지 못하게 하고, 삐져나가는 글자는 숨김 (자동 축소를 위해 필수) */
+    .word-group { 
         display: flex; 
-        align-items: center; 
-        gap: 8px; 
-    }
-
-    .card .card-actions { 
-        position: absolute; /* 공간을 차지하지 않고 공중에 띄움 (글자 밀림 완벽 해결!) */
-        top: 2px;           /* 카드 위쪽 테두리에서 8px 떨어짐 */
-        right: 2px;        /* 카드 오른쪽 테두리에서 10px 떨어짐 */
-        opacity: 0.3;       /* ✅ 평소에는 30% 투명도로 희미하게 (단어 집중) */
-        transition: opacity 0.2s ease-in-out; /* 부드럽게 나타나는 효과 */
+        flex-direction: column; 
+        flex: 0 1 45%; 
+        min-width: 90px; 
+        border-right: 1px dashed #cbd5e1; 
+        margin-right: 15px; 
+        padding-right: 10px;
+        overflow: hidden; 
     }
     
-    .card:hover .card-actions {
-        opacity: 1;
-    }
+    /* ✅ 한자 영역 줄바꿈 완벽 금지 */
+    .zh { font-size: 1.6em; font-weight: bold; color: var(--primary); margin-bottom: 2px; white-space: nowrap; }
+    .py { font-size: 0.9em; color: var(--pinyin); }
+    .mean { font-size: 1em; font-weight: 600; flex: 1; }
 
-    /* ⭐ 오답 노트(즐겨찾기) 버튼 스타일 수정 (마진 제거 및 크기 최적화) */
-    .star-btn { 
-        background: none; 
-        border: none; 
-        font-size: 1.6em; /* ✅ 세로 배치에 맞춰 살짝 크기 조정 */
-        cursor: pointer; 
-        color: #cbd5e1; 
-        transition: transform 0.2s, color 0.2s; 
-        padding: 0; /* 여백 제거 */
-        margin: 0; /* 기존 마진 제거 */
-        line-height: 1;
+    /* 퀴즈 전용 스타일 */
+    .quiz-container { text-align: center; padding: 50px; border: 2px dashed var(--accent); border-radius: 10px; background: #fdfdfd; margin-top: 20px; }
+    /* ✅ 퀴즈 질문도 한 줄로 강제 고정 */
+    .quiz-question { font-size: 3em; font-weight: bold; margin-bottom: 20px; color: #d35400; white-space: nowrap; overflow: hidden; width: 100%; }
+    .quiz-answer { font-size: 1.5em; margin: 20px 0; color: var(--secondary); display: none; }
+    .action-btn { padding: 10px 20px; font-size: 16px; cursor: pointer; margin: 5px; background: var(--accent); color: white; border: none; border-radius: 5px; }
+    
+    /* 퀴즈 입력창 및 피드백 스타일 */
+    .quiz-input { padding: 12px 15px; font-size: 18px; border: 2px solid #cbd5e1; border-radius: 8px; width: 100%; max-width: 300px; text-align: center; margin-bottom: 15px; transition: border-color 0.2s; }
+    .quiz-input:focus { border-color: var(--accent); outline: none; }
+    .quiz-feedback { font-size: 1.3em; font-weight: bold; margin-bottom: 15px; display: none; }
+    .feedback-correct { color: #16a34a; }
+    .feedback-incorrect { color: #dc2626; }
+
+    /* 검색창 및 X 버튼 스타일 */
+    .search-wrapper { position: relative; width: 100%; max-width: 300px; }
+    .search-input { padding: 10px 35px 10px 15px; font-size: 16px; border: 2px solid #cbd5e1; border-radius: 8px; width: 100%; box-sizing: border-box; transition: border-color 0.2s; }
+    .search-input:focus { outline: none; border-color: var(--accent); }
+    .clear-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 20px; color: #94a3b8; cursor: pointer; padding: 0 5px; line-height: 1; display: none; }
+    .clear-btn:hover { color: var(--primary); }
+
+    /* 카드 우측 상단 둥둥 뜨는 버튼 영역 */
+    .card-actions { display: flex; align-items: center; gap: 8px; }
+    .card .card-actions { position: absolute; top: 4px; right: 4px; opacity: 0.3; transition: opacity 0.2s ease-in-out; }
+    .card:hover .card-actions { opacity: 1; }
+
+    /* 아이콘 버튼 공통 스타일 */
+    .stroke-btn, .star-btn { 
+        display: flex; align-items: center; justify-content: center; background: transparent; 
+        border: none !important; outline: none; cursor: pointer; transition: transform 0.2s, color 0.2s; 
+        padding: 0; margin: 0; line-height: 1; -webkit-tap-highlight-color: transparent; 
     }
+    .stroke-btn:hover, .star-btn:hover { transform: scale(1.1); }
+    
+    .stroke-icon { color: #94a3b8; font-size: 22px; font-weight: normal; }
+    .star-btn { color: #cbd5e1; }
+    .star-icon { font-size: 22px; }
     .star-btn.active { color: #fbbf24; transform: scale(1.1); }
 
-    /* 팝업창(모달) 배경 및 창 스타일 */
+    /* 팝업창(모달) 스타일 */
     .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); justify-content: center; align-items: center; }
     .modal-content { background-color: #fff; padding: 25px; border-radius: 12px; text-align: center; max-width: 90%; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     .stroke-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; min-height: 100px; margin-bottom: 20px; }
-    /* 한자가 그려질 개별 박스 */
     .char-box { border: 1px dashed #cbd5e1; border-radius: 8px; background: #f8fafc; width: 100px; height: 100px; }
     .close-modal-btn { padding: 10px 25px; background: var(--secondary); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
 
     /* =========================================
-       📱 모바일 전용 스타일 (화면 너비 600px 이하일 때만 작동) 
+       📱 모바일 전용 스타일 (화면 너비 600px 이하)
        ========================================= */
     @media (max-width: 600px) {
         body { padding: 10px; }
         
-        /* 타이틀 축소 및 여백 조절 */
         h1#main-title { font-size: 1.5em; margin-bottom: 15px; padding-bottom: 5px; }
         h2 { font-size: 1.2em; margin-top: 20px; }
 
-        /* 컨트롤 패널 세로 배치로 변경 */
         .control-panel { padding: 12px; margin-bottom: 20px; }
         .selector-group { flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 15px; }
-        .btn-group button { padding: 10px; font-size: 14px; flex-grow: 1; } /* 버튼 터치 영역 확보 */
+        .btn-group button { padding: 10px; font-size: 14px; flex-grow: 1; } 
 
-        /* 단어장 1열(Column)로 꽉 차게 변경 */
         .grid-container { grid-template-columns: 1fr; gap: 10px; }
-        .card { padding: 10px; } /* 모바일 여백 줄임 */        
+        .card { padding: 15px 12px; } 
 
-        /* 모바일에 맞춘 폰트 사이즈 및 간격 최적화 */
         .zh { font-size: 2em; line-height: 1.2; } 
         .py { font-size: 1em; }
         
-        /* 뜻 영역 스타일 조정 (세로 버튼군 옆에 깔끔하게 붙게 함) */
-        .mean { 
-            font-size: 1em; 
-            width: auto;
-            flex: 1;
-            text-align: left; /* 오른쪽 정렬 해제, 왼쪽으로 정렬! */
-            padding-left: 10px; /* 점선과 글자 사이 간격 */
-            margin-left: 10px; /* 단어와 점선 사이 간격 */
-        }
+        .mean { font-size: 1em; text-align: left; }
 
-        /* ✅ 단어 길이가 달라도 회색 점선이 일직선으로 예쁘게 맞도록 최소 너비 고정 */
-        .word-group {
-            min-width: 90px; 
-        }
-
-        /* 퀴즈 화면 모바일 최적화 */
         .quiz-container { padding: 30px 15px; }
         .quiz-question { font-size: 2.5em; }
         .quiz-answer { font-size: 1.3em; }
         .action-btn { width: 100%; max-width: 250px; padding: 12px; font-size: 16px; margin: 5px auto; display: block; }
         
-        .search-wrapper { max-width: 100%; } /* 모바일에서는 가로 100% */
-        .search-input { max-width: 100%; } /* 모바일에서는 검색창 가로 100% */
+        .search-wrapper { max-width: 100%; }
+        .search-input { max-width: 100%; }
     }
 </style>
 </head>
@@ -249,12 +158,13 @@
                 <button id="clearBtn" class="clear-btn" onclick="clearSearch()">&times;</button>
             </div>
         </div>
-
     </div>
 
     <div id="app"></div>
+    
     <div id="strokeModal" class="modal-overlay" onclick="closeStrokeModal(event)">
-        <div class="modal-content" onclick="event.stopPropagation()"> <h3 style="margin-top:0; color:var(--primary);">획순 보기</h3>
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3 style="margin-top:0; color:var(--primary);">획순 보기</h3>
             <div id="strokeContainer" class="stroke-container"></div>
             <button class="close-modal-btn" onclick="closeStrokeModal(event, true)">닫기</button>
             <p style="font-size: 0.8em; color: #94a3b8; margin-top: 15px; margin-bottom: 0;">한자를 터치하면 다시 그려집니다.</p>
@@ -264,15 +174,33 @@
 <script src="words.js"></script> 
 
 <script>
-    // 상태 관리 변수 (초기값 설정)
-    let currentTheme = 'windows'; // 기본 주제
-    let currentMode = 'list';     // 기본 모드
-    let currentShuffledWords = []; // ✅ 섞인 단어를 임시로 기억해 둘 공간
+    // 상태 관리 변수
+    let currentTheme = 'windows'; 
+    let currentMode = 'list';     
+    let currentShuffledWords = []; 
 
     const appDiv = document.getElementById('app');
-    
+
+    // 🔠 글자 크기 자동 조절 함수
+    function autoResizeText() {
+        const targetElements = document.querySelectorAll('.zh, .quiz-question');
+        
+        targetElements.forEach(el => {
+            el.style.fontSize = ''; 
+            let currentSize = parseFloat(window.getComputedStyle(el).fontSize);
+            
+            while (el.scrollWidth > el.clientWidth && currentSize > 14) {
+                currentSize -= 1;
+                el.style.fontSize = currentSize + 'px';
+            }
+        });
+    }
+
+    window.addEventListener('resize', autoResizeText);
+
+    // 배열 섞기 함수
     function shuffleArray(array) {
-        let shuffled = [...array]; // 원본 데이터를 망치지 않게 복사본 생성
+        let shuffled = [...array]; 
         for (let i = shuffled.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
@@ -280,43 +208,32 @@
         return shuffled;
     }
 
-    // 1. 초기화 함수: 주제 버튼들을 데이터 기반으로 자동 생성
+    // 1. 초기화 함수
     function init() {
         const themeContainer = document.getElementById('theme-buttons');
         let html = '';
-        
-        // vocabData 객체의 키값들(windows, hsk2)을 순회하며 버튼 생성
         for (const key in vocabData) {
             html += `<button id="theme-${key}" onclick="setTheme('${key}')">${vocabData[key].title}</button>`;
         }
         themeContainer.innerHTML = html;
-        
-        // 초기 상태 적용
         setTheme(currentTheme);
     }
 
     // 2. 주제 변경 함수
     function setTheme(themeKey) {
         currentTheme = themeKey;
-        
-        // 버튼 UI 업데이트
         document.querySelectorAll('#theme-buttons button').forEach(btn => btn.classList.remove('active'));
         document.getElementById(`theme-${themeKey}`).classList.add('active');
+        document.getElementById('main-title').innerText = vocabData[themeKey].title;
         
-        // 랜덤 단어 보기 모드인 상태에서 주제를 바꾸면 새 주제에 맞춰 다시 섞기
         if (currentMode === 'randomList') {
             currentShuffledWords = shuffleArray(vocabData[currentTheme].words);
         }
-
-        // 화면 다시 그리기
         renderContent();
     }
 
-    // ==========================================
-    // 💾 오답 노트(로컬 스토리지) 관리 함수
-    // ==========================================
+    // 오답 노트 관리 함수
     function getFavorites() {
-        // 현재 주제(windows, hsk2 등)별로 오답 노트를 따로 저장합니다.
         const favs = localStorage.getItem('fav_' + currentTheme);
         return favs ? JSON.parse(favs) : [];
     }
@@ -330,7 +247,6 @@
         }
         localStorage.setItem('fav_' + currentTheme, JSON.stringify(favs));
         
-        // ✅ 수정된 부분: currentMode가 'randomList'일 때도 화면을 갱신하도록 추가!
         if (currentMode === 'list' || currentMode === 'randomList' || currentMode === 'favorites') {
             renderList();
         } else if (currentMode === 'quiz') {
@@ -342,50 +258,39 @@
         }
     }
 
-    // ==========================================
-    // ✍️ 획순 애니메이션 (Hanzi Writer) 로직
-    // ==========================================
+    // ✍️ 획순 애니메이션
     function showStrokeOrder(zh_text) {
         const modal = document.getElementById('strokeModal');
         const container = document.getElementById('strokeContainer');
-        container.innerHTML = ''; // 이전 글자들 초기화
-        modal.style.display = 'flex'; // 팝업 열기
+        container.innerHTML = ''; 
+        modal.style.display = 'flex'; 
 
-        // 단어의 글자 수만큼 반복해서 그리기 (예: 操作系统 -> 4번 반복)
         Array.from(zh_text).forEach(char => {
             const charDiv = document.createElement('div');
             charDiv.className = 'char-box';
             container.appendChild(charDiv);
 
-            // HanziWriter 설정 및 생성
             const writer = HanziWriter.create(charDiv, char, {
                 width: 100, height: 100, padding: 8,
-                strokeAnimationSpeed: 1.5, // 긋는 속도
-                delayBetweenStrokes: 100,  // 획 사이 딜레이
-                showOutline: true          // 배경에 연하게 글자 윤곽선 표시
+                strokeAnimationSpeed: 1.5, delayBetweenStrokes: 100, showOutline: true
             });
             
-            // 박스를 터치/클릭하면 애니메이션 다시 실행
             charDiv.onclick = () => writer.animateCharacter();
-            
-            // 팝업이 열리면 자동으로 애니메이션 시작
             writer.animateCharacter();
         });
     }
 
-    // 팝업 닫기 로직 (바깥 배경을 누르거나 닫기 버튼을 누를 때)
     function closeStrokeModal(event, forceClose = false) {
         if (forceClose || event.target.id === 'strokeModal') {
             document.getElementById('strokeModal').style.display = 'none';
-            document.getElementById('strokeContainer').innerHTML = ''; // 메모리 정리
+            document.getElementById('strokeContainer').innerHTML = ''; 
         }
     }
 
-    // 3. 모드 변경 함수 (수정: 랜덤 단어 보기에서 검색창 숨김)
+    // 3. 모드 변경 함수
     function setMode(modeKey) {
         currentMode = modeKey;
         
-        // 버튼 UI 업데이트
         document.querySelectorAll('#mode-buttons button').forEach(btn => btn.classList.remove('active'));
         document.getElementById(`mode-${modeKey}`).classList.add('active');
 
@@ -393,20 +298,15 @@
         const searchInput = document.getElementById('searchInput');
         const clearBtn = document.getElementById('clearBtn');
         
-        // ✅ '모든 단어 보기', '오답 노트'일 때만 검색창 보이기
         if (modeKey === 'list' || modeKey === 'favorites') {
             if (searchGroup) searchGroup.style.display = ''; 
-        } 
-        // ✅ '랜덤 단어 보기', '랜덤 테스트'일 때는 검색창 숨기기 및 초기화
-        else {
+        } else {
             if (searchGroup) searchGroup.style.display = 'none';
-            if (searchInput) searchInput.value = ''; // 숨겨진 상태에서 검색어가 필터링을 방해하지 않도록 비움
+            if (searchInput) searchInput.value = ''; 
             if (clearBtn) clearBtn.style.display = 'none';
         }
 
-        // 화면 렌더링 분기
         if (modeKey === 'list' || modeKey === 'randomList' || modeKey === 'favorites') {
-            // '랜덤 단어 보기' 탭을 방금 막 눌렀을 때만 배열을 새로 섞음
             if (modeKey === 'randomList') {
                 currentShuffledWords = shuffleArray(vocabData[currentTheme].words);
             }
@@ -416,7 +316,6 @@
         }
     }
     
-    // 4. 콘텐츠 분기 렌더링 (수정)
     function renderContent() {
         if (currentMode === 'list' || currentMode === 'randomList' || currentMode === 'favorites') {
             renderList();
@@ -425,68 +324,46 @@
         }
     }
 
-    // ✅ 4. 검색 입력 처리 함수 (새로 추가됨)
+    // 검색 입력 처리
     function handleSearch() {
         if (currentMode === 'list') {
             const query = document.getElementById('searchInput').value;
             const clearBtn = document.getElementById('clearBtn');
-            
-            // 글자가 1개라도 있으면 X 버튼 표시, 없으면 숨김
-            if (query.length > 0) {
-                clearBtn.style.display = 'block';
-            } else {
-                clearBtn.style.display = 'none';
-            }
-            
+            clearBtn.style.display = query.length > 0 ? 'block' : 'none';
             renderList();
         }
     }
 
-    // ✅ 4-1. 검색어 초기화 함수 (새로 추가됨)
     function clearSearch() {
         const searchInput = document.getElementById('searchInput');
-        searchInput.value = ''; // 입력칸 비우기
-        document.getElementById('clearBtn').style.display = 'none'; // X 버튼 숨기기
-        searchInput.focus(); // 지운 후에도 바로 타자를 칠 수 있게 커서 유지
-        
-        if (currentMode === 'list') {
-            renderList(); // 전체 리스트 다시 렌더링
-        }
+        searchInput.value = ''; 
+        document.getElementById('clearBtn').style.display = 'none'; 
+        searchInput.focus(); 
+        if (currentMode === 'list') renderList(); 
     }
 
-    // 🌟 병음에서 성조 기호를 완전히 제거해주는 마법의 함수
+    // 병음 성조 제거 함수
     function removeTones(str) {
-        // 1. normalize("NFD"): 'xì'를 'xi'와 '`'(성조) 두 개로 분리함
-        // 2. replace: 분리된 기호들(성조)을 빈 문자열로 싹 지워버림
         return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     }
-    // 5. 단어 목록 렌더링 (수정: 무작위 정렬 데이터 반영 및 카테고리 헤더 숨김)
+
+    // 5. 단어 목록 렌더링
     function renderList() {
-        // ✅ 현재 모드에 따라 가져올 기본 단어 리스트 결정
         let targetWords = vocabData[currentTheme].words;
-        if (currentMode === 'randomList') {
-            targetWords = currentShuffledWords; // 무작위로 섞어둔 배열 사용
-        }
+        if (currentMode === 'randomList') targetWords = currentShuffledWords;
 
         const favs = getFavorites(); 
         const searchInput = document.getElementById('searchInput');
         const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
         const normalizedQuery = removeTones(query); 
 
-        // 단어 필터링 (오답 노트 + 검색어)
         const filteredWords = targetWords.filter(word => {
-            if (currentMode === 'favorites' && !favs.includes(word.id)) {
-                return false;
-            }
+            if (currentMode === 'favorites' && !favs.includes(word.id)) return false;
             const pyLower = word.py.toLowerCase();
             const pyNoTones = removeTones(pyLower);
-            return word.zh.includes(query) || 
-                   word.mean.toLowerCase().includes(query) || 
-                   pyLower.includes(query) ||
-                   pyNoTones.includes(normalizedQuery);
+            return word.zh.includes(query) || word.mean.toLowerCase().includes(query) || pyLower.includes(query) || pyNoTones.includes(normalizedQuery);
         });
 
-        const appDiv = document.getElementById('app');
         let html = '';
         let currentCategory = '';
 
@@ -496,14 +373,12 @@
             return;
         }
 
-        // ✅ 랜덤 모드이거나 오답노트 모드라면 카테고리를 나누지 않고 하나의 큰 타이틀로 묶음
         if (currentMode === 'randomList' || currentMode === 'favorites') {
             const title = currentMode === 'randomList' ? '🔀 전체 단어 (무작위 순서)' : '⭐ 내 오답 노트';
             html += `<h2 style="color: var(--accent); margin-top: 30px; border-left: 5px solid var(--accent); padding-left: 10px;">${title}</h2><div class="grid-container">`;
         }
 
         filteredWords.forEach(item => {
-            // '모든 단어 보기' 모드일 때만 카테고리별로 헤더를 나눔
             if (currentMode === 'list' && item.category !== currentCategory) {
                 if (currentCategory !== '') html += '</div>'; 
                 html += `<h2 style="color: var(--accent); margin-top: 30px; border-left: 5px solid var(--accent); padding-left: 10px;">${item.category}</h2><div class="grid-container">`;
@@ -514,8 +389,7 @@
             
             html += `
                 <div class="card">
-                    <div style="color: #94a3b8; font-weight: bold; min-width: 28px;">${item.id}</div>
-                    <div class="word-group">
+<div style="color: #94a3b8; font-weight: bold; min-width: 40px; margin-right: 5px;">${item.id}</div>                    <div class="word-group">
                         <span class="zh">${item.zh}</span>
                         <span class="py">${item.py}</span>
                     </div>
@@ -533,27 +407,30 @@
         });
         html += '</div>';
         appDiv.innerHTML = html;
+
+        setTimeout(autoResizeText, 0);
     }
 
-    // 6. 퀴즈 렌더링 (정답 확인 시 오답 노트에 바로 추가하는 기능 포함)
+    // 6. 퀴즈 렌더링 (입력 기능 복구)
     function renderQuiz() {
         const targetWords = vocabData[currentTheme].words;
-        
-        // ✅ [선택 사항] 오답 노트 모드에서 퀴즈를 누르면 오답 노트 안에서만 퀴즈를 낼 수도 있습니다.
-        // 지금은 무조건 전체 단어에서 퀴즈가 나오도록 설정되어 있습니다.
-        
         const randomWord = targetWords[Math.floor(Math.random() * targetWords.length)];
         const questionType = Math.floor(Math.random() * 2);
         
+        window.currentQuizWord = randomWord;
+
         let questionText = '';
         let answerText = '';
+        let hintText = '';
 
         if (questionType === 0) {
             questionText = `Q. ${randomWord.zh}`;
             answerText = `병음: ${randomWord.py} <br> 뜻: ${randomWord.mean}`;
+            hintText = '병음(성조 생략) 또는 뜻 입력';
         } else {
             questionText = `Q. ${randomWord.mean}`;
             answerText = `한자: <span class="zh">${randomWord.zh}</span> <br> 병음: ${randomWord.py}`;
+            hintText = '한자 또는 병음(성조 생략) 입력';
         }
 
         const favs = getFavorites();
@@ -562,6 +439,10 @@
         appDiv.innerHTML = `
             <div class="quiz-container">
                 <div class="quiz-question">${questionText}</div>
+                
+                <input type="text" id="quizInput" class="quiz-input" placeholder="${hintText}" onkeypress="if(event.key==='Enter') checkQuizAnswer()">
+                <div id="quizFeedback" class="quiz-feedback"></div>
+
                 <div id="quiz-answer" class="quiz-answer">
                     ${answerText}
                     <div style="margin-top: 15px; border-top: 1px dashed #cbd5e1; padding-top: 15px;">
@@ -576,15 +457,64 @@
                         </div>
                     </div>
                 </div>
-                <div>
-                    <button class="action-btn" onclick="document.getElementById('quiz-answer').style.display='block'">정답 보기</button>
-                    <button class="action-btn" onclick="renderQuiz()">다음 문제</button>
+                
+                <div id="quiz-buttons">
+                    <button class="action-btn" id="checkBtn" onclick="checkQuizAnswer()">정답 확인</button>
+                    <button class="action-btn" id="nextBtn" style="display:none;" onclick="renderQuiz()">다음 문제</button>
                 </div>
             </div>
         `;
+        
+        setTimeout(() => {
+            const input = document.getElementById('quizInput');
+            if(input) input.focus();
+            autoResizeText();
+        }, 100);
     }
 
-    // 스크립트가 로드되면 초기화 실행
+    // 7. 퀴즈 채점 함수 (복구)
+    function checkQuizAnswer() {
+        const inputEl = document.getElementById('quizInput');
+        const feedbackEl = document.getElementById('quizFeedback');
+        const answerEl = document.getElementById('quiz-answer');
+        const checkBtn = document.getElementById('checkBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        
+        const userInput = inputEl.value.trim().toLowerCase();
+        const word = window.currentQuizWord;
+        
+        if (!userInput) {
+            feedbackEl.innerText = "정답을 확인합니다.";
+            feedbackEl.className = "quiz-feedback";
+        } else {
+            const pyNoTones = removeTones(word.py.toLowerCase());
+            const userNoTones = removeTones(userInput);
+            let isCorrect = false;
+            
+            if (userNoTones === pyNoTones) isCorrect = true;
+            if (userInput === word.zh) isCorrect = true;
+            if (word.mean.toLowerCase().includes(userInput) && userInput.length >= 1) isCorrect = true;
+
+            if (isCorrect) {
+                feedbackEl.innerHTML = "🎉 정답입니다!";
+                feedbackEl.className = "quiz-feedback feedback-correct";
+            } else {
+                feedbackEl.innerHTML = "😅 아쉽네요, 틀렸습니다.";
+                feedbackEl.className = "quiz-feedback feedback-incorrect";
+            }
+        }
+        
+        feedbackEl.style.display = "block";
+        answerEl.style.display = "block";
+        checkBtn.style.display = "none";
+        nextBtn.style.display = "inline-block";
+        
+        inputEl.disabled = true; 
+        nextBtn.focus(); 
+        
+        setTimeout(autoResizeText, 0);
+    }
+
     init();
 </script>
 </body>
