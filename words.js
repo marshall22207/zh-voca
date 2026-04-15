@@ -156,7 +156,24 @@ const vocabData = {
             { id: 137, category: "8. 시스템 및 소프트웨어 설정 메뉴", zh: "性能", py: "xìngnéng", mean: "성능" },
             { id: 138, category: "8. 시스템 및 소프트웨어 설정 메뉴", zh: "通知", py: "tōngzhī", mean: "알림" },
             { id: 139, category: "8. 시스템 및 소프트웨어 설정 메뉴", zh: "声音", py: "shēngyīn", mean: "소리 (Sound)" },
-            { id: 140, category: "8. 시스템 및 소프트웨어 설정 메뉴", zh: "蓝牙和其他设备", py: "lányá hé qítā..", mean: "블루투스 및 장치" }
+            { id: 140, category: "8. 시스템 및 소프트웨어 설정 메뉴", zh: "蓝牙和其他设备", py: "lányá hé qítā..", mean: "블루투스 및 장치" },
+
+            // --- 9. IT / 보안 / 네트워크 전문 용어 ---
+            { id: 141, category: "9. 보안 및 네트워크", zh: "风险", py: "fēngxiǎn", mean: "위험 (Risk) *보안 위협" },
+            { id: 142, category: "9. 보안 및 네트워크", zh: "内网", py: "nèiwǎng", mean: "내부망 (Intranet)" },
+            { id: 143, category: "9. 보안 및 네트워크", zh: "渗透", py: "shèntòu", mean: "침투 (Penetration)" },
+            { id: 144, category: "9. 보안 및 네트워크", zh: "攻击", py: "gōngjī", mean: "공격 (Attack)" },
+            { id: 145, category: "9. 보안 및 네트워크", zh: "计算机", py: "jìsuànjī", mean: "컴퓨터 (기술 문서용)" },
+            { id: 146, category: "9. 보안 및 네트워크", zh: "漏洞", py: "lòudòng", mean: "취약점 (Vulnerability)" },
+            { id: 147, category: "9. 보안 및 네트워크", zh: "防御", py: "fángyù", mean: "방어 (Defense)" },
+            { id: 148, category: "9. 보안 및 네트워크", zh: "拦截", py: "lánjié", mean: "차단, 요격 (Intercept)" },
+            { id: 149, category: "9. 보안 및 네트워크", zh: "网关", py: "wǎngguān", mean: "게이트웨이 (Gateway)" },
+            { id: 150, category: "9. 보안 및 네트워크", zh: "恶意软件", py: "èyì ruǎnjiàn", mean: "악성코드 (Malware)" },
+            { id: 151, category: "9. 보안 및 네트워크", zh: "病毒", py: "bìngdú", mean: "바이러스 (Virus)" },
+            { id: 152, category: "9. 보안 및 네트워크", zh: "木马", py: "mùmǎ", mean: "트로이목마 (Trojan)" },
+            { id: 153, category: "9. 보안 및 네트워크", zh: "勒索软件", py: "lèsuǒ ruǎnjiàn", mean: "랜섬웨어 (Ransomware)" },
+            { id: 154, category: "9. 보안 및 네트워크", zh: "身份验证", py: "shēnfèn yànzhèng", mean: "신원 인증 (Authentication)" },
+            { id: 155, category: "9. 보안 및 네트워크", zh: "黑客", py: "hēikè", mean: "해커 (Hacker)" }
 
         ]
     },
