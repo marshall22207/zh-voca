@@ -171,11 +171,20 @@
         </div>
     </div>
 
-<script src="words.js"></script> 
+<script>
+    const vocabData = {};
+</script>
+
+<script src="windows.js"></script> 
+<script src="caihong.js"></script>
+<script src="hsk3.js"></script>
+<script src="hsk3.js"></script>
+<script src="hsk4.js"></script>
+<script src="h31001.js"></script>
 
 <script>
     // 상태 관리 변수
-    let currentTheme = 'windows'; 
+    let currentTheme = ''; 
     let currentMode = 'list';     
     let currentShuffledWords = []; 
 
@@ -211,6 +220,17 @@
     // 1. 초기화 함수
     function init() {
         const themeContainer = document.getElementById('theme-buttons');
+        
+        const keys = Object.keys(vocabData);
+        if (keys.length === 0) {
+            themeContainer.innerHTML = '등록된 단어장이 없습니다.';
+            return;
+        }
+
+        if (!currentTheme || !vocabData[currentTheme]) {
+            currentTheme = keys[0];
+        }
+
         let html = '';
         for (const key in vocabData) {
             html += `<button id="theme-${key}" onclick="setTheme('${key}')">${vocabData[key].title}</button>`;
