@@ -207,7 +207,7 @@
         </div>
         
         <div class="toggle-row">
-            <span class="toggle-label">Mean</span>
+            <span class="toggle-label">Meaning</span>
             <label class="switch">
                 <input type="checkbox" id="meanToggle" checked onchange="toggleMean()">
                 <span class="slider round"></span>
@@ -491,7 +491,8 @@
             
             html += `
                 <div class="card">
-<div style="color: #94a3b8; font-weight: bold; min-width: 40px; margin-right: 5px;">${item.id}</div>                    <div class="word-group">
+                    <div style="color: #94a3b8; font-weight: bold; min-width: 40px; margin-right: 5px;">${item.id}</div>
+                    <div class="word-group">
                         <span class="zh">${item.zh}</span>
                         <span class="py">${item.py}</span>
                     </div>
@@ -632,7 +633,7 @@
             autoResizeText();
         }
     }
-    
+
     // 한글 뜻 보이기/안보이기 토글 함수
     function toggleMean() {
         const isChecked = document.getElementById('meanToggle').checked;
