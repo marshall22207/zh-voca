@@ -194,6 +194,34 @@
             min-width: 75px;
         }
     }
+    
+    /* =========================================
+   ✨ 마우스 오버 & 터치 시 정답(병음/뜻) 보이기
+   ========================================= */
+
+    /* 1. 모바일에서 '터치'를 클릭 이벤트로 정확히 인식하게 하려면 카드에 cursor 속성이 필요합니다 */
+    .card {
+        cursor: pointer; /* PC에서는 마우스 손가락 모양, 모바일에서는 터치 영역으로 인식 */
+    }
+
+    /* 2. 병음이 숨겨진 상태(.hide-pinyin)일 때, 카드에 마우스를 올리거나 누르면 병음 표시 */
+    .hide-pinyin .card:hover .py,
+    .hide-pinyin .card:active .py {
+        visibility: visible !important;
+    }
+
+    /* 3. 뜻이 숨겨진 상태(.hide-mean)일 때, 카드에 마우스를 올리거나 누르면 뜻 색상 복구 */
+    .hide-mean .card:hover .mean,
+    .hide-mean .card:active .mean {
+        color: var(--secondary) !important; /* 뜻의 원래 텍스트 색상으로 복원 */
+        text-shadow: initial !important;
+    }
+
+    /* (선택) 카드에 마우스를 올렸을 때 살짝 강조되는 효과를 주면 더 직관적입니다 */
+    .card:hover {
+        border-color: var(--accent);
+        box-shadow: 0 2px 8px rgba(0, 86, 179, 0.1);
+    }
 </style>
 </head>
 <body>
