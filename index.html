@@ -256,6 +256,7 @@
             <div class="btn-group" id="mode-buttons">
                 <button id="mode-list" class="active" onclick="setMode('list')">모든 단어 보기</button>
                 <button id="mode-randomList" onclick="setMode('randomList')">랜덤 단어 보기</button>
+                <button id="mode-elimination" onClick="setMode('elimination')">서바이벌 암기</button>
                 <button id="mode-quiz" onclick="setMode('quiz')">랜덤 테스트</button>
                 <button id="mode-favorites" onclick="setMode('favorites')">오답 노트</button>
             </div>
@@ -298,7 +299,8 @@
     // 상태 관리 변수
     let currentTheme = ''; 
     let currentMode = 'list';     
-    let currentShuffledWords = []; 
+    let currentShuffledWords = [];
+    let currentEliminationWords = [];
 
     const appDiv = document.getElementById('app');
 
@@ -360,6 +362,10 @@
         
         if (currentMode === 'randomList') {
             currentShuffledWords = shuffleArray(vocabData[currentTheme].words);
+        }
+        
+        if (currentMode === 'elimination') {
+            currentEliminationWords = shuffleArray(vocabData[currentTheme].words);
         }
         renderContent();
     }
@@ -430,7 +436,7 @@
         const searchInput = document.getElementById('searchInput');
         const clearBtn = document.getElementById('clearBtn');
         
-        if (modeKey === 'list' || modeKey === 'favorites') {
+        if (modeKey === 'list' || modeKey === 'favorites' || modeKey === 'elimination') {
             if (searchGroup) searchGroup.style.display = ''; 
         } else {
             if (searchGroup) searchGroup.style.display = 'none';
@@ -438,9 +444,12 @@
             if (clearBtn) clearBtn.style.display = 'none';
         }
 
-        if (modeKey === 'list' || modeKey === 'randomList' || modeKey === 'favorites') {
+        if (modeKey === 'list' || modeKey === 'randomList' || modeKey === 'favorites' || modeKey == 'elimination') {
             if (modeKey === 'randomList') {
                 currentShuffledWords = shuffleArray(vocabData[currentTheme].words);
+            }
+            if (modeKey == 'elimination') {
+                currentEliminationWords = shuffleArray(vocabData[currentTheme].words);
             }
             renderList();
         } else {
@@ -449,7 +458,7 @@
     }
     
     function renderContent() {
-        if (currentMode === 'list' || currentMode === 'randomList' || currentMode === 'favorites') {
+        if (currentMode === 'list' || currentMode === 'randomList' || currentMode === 'favorites' || currentMode === 'elimination' ) {
             renderList();
         } else {
             renderQuiz();
@@ -483,6 +492,7 @@
     function renderList() {
         let targetWords = vocabData[currentTheme].words;
         if (currentMode === 'randomList') targetWords = currentShuffledWords;
+        if (currentMode === 'elimination') targetWords = currentEliminationWords;
 
         const favs = getFavorites(); 
         const searchInput = document.getElementById('searchInput');
@@ -500,13 +510,19 @@
         let currentCategory = '';
 
         if (filteredWords.length === 0) {
-            const msg = currentMode === 'favorites' ? '오답 노트가 비어있습니다. 퀴즈나 목록에서 ⭐를 눌러 추가해보세요!' : '검색 결과가 없습니다. 😢';
+            let msg = '검색 결과가 없습니다. 😢';
+            if (currentMode === 'favorites') msg = '오답 노트가 비어있습니다. 퀴즈나 목록에서 ⭐를 눌러 추가해보세요!';
+            if (currentMode === 'elimination' && query === '') msg = '🎉 모든 단어를 다 외우셨네요! 축하합니다!';
             appDiv.innerHTML = `<div style="text-align:center; padding: 50px; color: var(--pinyin); font-size: 1.2em; line-height:1.5;">${msg}</div>`;
             return;
         }
 
-        if (currentMode === 'randomList' || currentMode === 'favorites') {
-            const title = currentMode === 'randomList' ? '🔀 전체 단어 (무작위 순서)' : '⭐ 내 오답 노트';
+        if (currentMode === 'randomList' || currentMode === 'favorites' || currentMode === 'elimination') {
+            let title = '';
+            if (currentMode === 'randomList') title = '🔀 전체 단어 (무작위 순서)';
+            if (currentMode === 'favorites') title = '⭐ 내 오답 노트';
+            if (currentMode === 'elimination') title = '🔥 서바이벌 암기 (아는 단어는 체크해서 지우세요!)';
+            
             html += `<h2 style="color: var(--accent); margin-top: 30px; border-left: 5px solid var(--accent); padding-left: 10px;">${title}</h2><div class="grid-container">`;
         }
 
@@ -518,9 +534,19 @@
             }
             
             const isFav = favs.includes(item.id);
+
+            // Add Check button ONLY in elimination mode
+            let eliminationBtnHtml = '';
+            if (currentMode === 'elimination') {
+                eliminationBtnHtml = `
+                    <button class="stroke-btn" onclick="eliminateWord(event, ${item.id})" title="아는 단어 지우기" style="color: #10b981;">
+                        <span class="material-icons stroke-icon">check_circle</span>
+                    </button>
+                `;
+            }
             
             html += `
-                <div class="card">
+                <div class="card" id="card-${item.id}">
                     <div style="color: #94a3b8; font-weight: bold; min-width: 40px; margin-right: 5px;">${item.id}</div>
                     <div class="word-group">
                         <span class="zh">${item.zh}</span>
@@ -528,6 +554,7 @@
                     </div>
                     <div class="mean">${item.mean}</div>
                     <div class="card-actions">
+                        ${eliminationBtnHtml}
                         <button class="stroke-btn" onclick="showStrokeOrder('${item.zh}')" title="획순 보기">
                             <span class="material-icons stroke-icon">draw</span>
                         </button>
@@ -542,6 +569,25 @@
         appDiv.innerHTML = html;
 
         setTimeout(autoResizeText, 0);
+    }
+
+    // Function to handle word elimination with animation
+    function eliminateWord(event, wordId) {
+        // 1. Remove from temporary array
+        currentEliminationWords = currentEliminationWords.filter(word => word.id !== wordId);
+        
+        // 2. Add smooth fade-out animation
+        const card = event.target.closest('.card');
+        if (card) {
+            card.style.transition = 'all 0.3s ease-out';
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.8)';
+            
+            // Wait for animation to finish, then hide the card
+            setTimeout(() => {
+                card.style.display = 'none';
+            }, 300);
+        }
     }
 
     // 6. 퀴즈 렌더링 (입력 기능 복구)
